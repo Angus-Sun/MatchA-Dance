@@ -3,7 +3,7 @@ import { landmarksToArray, normalizeLandmarks } from './poseUtil';
 
 // Process a video File into a reference sequence of landmarks (one representative frame per detected step)
 // Returns { referenceSequence: [landmarks], stepTimes: [seconds], suggestedAutoSkip }
-export async function processVideoFile(file, { sampleFps = 15, smoothWindow = 5, motionThresholdFactor = 0.6 } = {}) {
+export async function processVideoFile(file, { sampleFps = 15, smoothWindow = 5, motionThresholdFactor = 0.6, fixedIntervalSeconds = 0 } = {}) {
   if (!file) throw new Error('no file');
 
   // create hidden video element
@@ -53,6 +53,34 @@ export async function processVideoFile(file, { sampleFps = 15, smoothWindow = 5,
 
   // if not enough frames, fallback
   if (!frames.length) return { referenceSequence: [], stepTimes: [], suggestedAutoSkip: 0 };
+
+  // If the caller requested fixed-interval sampling (e.g. every 0.25s), choose frames nearest to those times
+  if (fixedIntervalSeconds && fixedIntervalSeconds > 0) {
+    const duration = frames[frames.length - 1].time || 0;
+    if (duration <= 0) return { referenceSequence: [], stepTimes: [], suggestedAutoSkip: 0 };
+    const times = [];
+    for (let t = 0; t <= duration + 1e-6; t += fixedIntervalSeconds) times.push(t);
+
+    const stepIndices = times.map((target) => {
+      let bestIdx = 0;
+      let bestDiff = Infinity;
+      for (let i = 0; i < frames.length; i++) {
+        const d = Math.abs((frames[i].time || 0) - target);
+        if (d < bestDiff) {
+          bestDiff = d;
+          bestIdx = i;
+        }
+      }
+      return bestIdx;
+    });
+
+    // build referenceSequence and times
+    const referenceSequence = stepIndices.map(i => frames[i].landmarks || []);
+    const stepTimes = stepIndices.map(i => frames[i].time || 0);
+    const suggestedAutoSkip = fixedIntervalSeconds;
+    try { URL.revokeObjectURL(video.src); } catch (e) {}
+    return { referenceSequence, stepTimes, suggestedAutoSkip };
+  }
 
   // compute motion between consecutive frames using normalized landmarks
   const normFrames = frames.map(f => normalizeLandmarks(landmarksToArray(f.landmarks)));

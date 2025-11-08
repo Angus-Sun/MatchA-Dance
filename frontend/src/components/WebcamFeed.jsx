@@ -3,7 +3,7 @@ import usePoseDetection from '../hooks/usePoseDetection';
 import ScoreDisplay from './ScoreDisplay';
 import { perJointSimilarity, JOINT_NAMES, similarityToColor, perJointAngleSimilarity } from '../utils/poseUtil';
 
-export default function WebcamFeed({ referenceSequence = [] }) {
+export default function WebcamFeed({ referenceSequence }) {
 	const videoRef = useRef(null);
 	const canvasRef = useRef(null);
 		const [status, setStatus] = useState('idle'); // idle | requesting | ready | error

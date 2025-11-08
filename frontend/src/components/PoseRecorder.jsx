@@ -15,7 +15,6 @@ export default function PoseRecorder() {
 
   const { currentPose, start, stop, reset, isRunning } = usePoseDetection({
     videoRef,
-    referenceSequence: [],
     threshold: 0.75,
     hold: 4,
   });

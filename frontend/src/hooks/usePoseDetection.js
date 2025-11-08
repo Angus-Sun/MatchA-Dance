@@ -13,7 +13,7 @@ import { poseSimilarity, perJointAngleSimilarity, shoulderSpreadSimilarity } fro
  */
 export default function usePoseDetection({
 	videoRef,
-	referenceSequence = [],
+	referenceSequence,
 	threshold = 0.75,
 	hold = 4,
 	onResult,

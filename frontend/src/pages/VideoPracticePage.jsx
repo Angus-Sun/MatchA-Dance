@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VideoSyncedFeed from '../components/VideoSyncedFeed';
+import processVideoFile from '../utils/videoToReference';
 
 export default function VideoPracticePage() {
   const [referenceVideo, setReferenceVideo] = useState(null);
   const [videoName, setVideoName] = useState('');
+  const [file, setFile] = useState(null);
+  const [generating, setGenerating] = useState(false);
   const navigate = useNavigate();
 
   const onVideoUpload = async (e) => {
@@ -13,7 +16,24 @@ export default function VideoPracticePage() {
 
     setVideoName(file.name);
     setReferenceVideo(URL.createObjectURL(file));
+    setFile(file);
   };
+
+  async function generateFixedReference() {
+    if (!file) return;
+    try {
+      setGenerating(true);
+      const { referenceSequence, stepTimes } = await processVideoFile(file, { sampleFps: 15, fixedIntervalSeconds: 0.25 });
+      // Integrate generated reference directly into app by navigating back to the main page
+      // and passing the referenceSequence via location.state so App can pick it up.
+      navigate('/', { state: { referenceSequence, stepTimes } });
+    } catch (e) {
+      console.error('Failed to generate reference:', e);
+      alert('Failed to generate reference frames: ' + (e?.message || String(e)));
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   return (
     <div>
@@ -38,6 +58,9 @@ export default function VideoPracticePage() {
             <h3>Practicing: {videoName}</h3>
             <button onClick={() => setReferenceVideo(null)} style={{ marginRight: 8 }}>
               Choose different video
+            </button>
+            <button onClick={generateFixedReference} disabled={generating}>
+              {generating ? 'Generating...' : 'Generate reference (0.25s)'}
             </button>
           </div>
           <VideoSyncedFeed referenceVideo={referenceVideo} />

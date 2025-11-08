@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -11,6 +11,21 @@ function App() {
   const [count, setCount] = useState(0)
 
   const [referenceSequence, setReferenceSequence] = useState([]);
+  const location = useLocation();
+
+  // If navigated here with generated referenceSequence in location.state, use it.
+  useEffect(() => {
+    try {
+      if (location && location.state) {
+        const state = location.state;
+        if (state.referenceSequence) {
+          setReferenceSequence(state.referenceSequence);
+          // Clear history state so reloading doesn't reapply it
+          try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {}
+        }
+      }
+    } catch (e) {}
+  }, [location]);
 
   function onFileUpload(e) {
     const f = e.target.files && e.target.files[0];
@@ -19,7 +34,14 @@ function App() {
     reader.onload = () => {
       try {
         const json = JSON.parse(reader.result);
-        setReferenceSequence(json);
+        // Accept either an array of landmarks or an object { referenceSequence, stepTimes }
+        if (json && Array.isArray(json)) {
+          setReferenceSequence(json);
+        } else if (json && json.referenceSequence && Array.isArray(json.referenceSequence)) {
+          setReferenceSequence(json.referenceSequence);
+        } else {
+          alert('Uploaded JSON has unexpected format. Expecting an array of landmark frames or { referenceSequence: [...] }');
+        }
       } catch (err) {
         alert('Failed to parse JSON: ' + err.message);
       }
