@@ -11,10 +11,31 @@ export default function UploadPage() {
   const [title, setTitle] = useState("");
   const [uploading, setUploading] = useState(false);
   const [successUrl, setSuccessUrl] = useState("");
+  const [dragActive, setDragActive] = useState(false);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    const droppedFiles = e.dataTransfer.files;
+    if (droppedFiles && droppedFiles[0]) setFile(droppedFiles[0]);
   };
 
   const handleUpload = async () => {
@@ -94,12 +115,18 @@ export default function UploadPage() {
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        <div className="file-input-wrapper">
+        <div
+          className={`dropzone ${dragActive ? "active" : ""}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           <input
             type="file"
             id="video-upload"
             accept="video/*"
             onChange={handleFileChange}
+            className="hidden-input"
           />
           <label htmlFor="video-upload" className="file-label">
             <FaVideo size={80} color="#999" />
