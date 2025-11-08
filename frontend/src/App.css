@@ -1,7 +1,8 @@
 #root {
-  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  /* Add top padding to prevent content from being hidden under the fixed 48px navbar */
+  padding-top: calc(2rem + 48px);
   text-align: center;
 }
 
