@@ -1,15 +1,21 @@
 #root {
-  max-width: 1280px;
+  width: 100%;
+  height: 100%;
+  /*max-width: 1280px;*/
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: #e7e7d2
 }
 
 .logo {
   height: 6em;
-  padding: 1.5em;
+  /*padding: 1.5em;*/
+  margin: 0;
   will-change: filter;
   transition: filter 300ms;
+  text-align: left;
+  position: fixed; top: 0;
 }
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
