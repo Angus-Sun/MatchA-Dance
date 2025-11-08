@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient.js";
 import { v4 as uuidv4 } from "uuid";
+import { FaVideo } from "react-icons/fa"; // Video icon from React Icons
 import "./UploadPage.css";
 
 export default function UploadPage() {
@@ -45,7 +46,7 @@ export default function UploadPage() {
     const uploaderName = profileData?.username || session.user.email;
 
     // Upload to Supabase Storage
-    const fileName = `challenges/${uuidv4()}.mp4`;
+    const fileName = `danceclips/${uuidv4()}.mp4`;
     const { data, error: uploadError } = await supabase.storage
       .from("videos")
       .upload(fileName, file, { contentType: "video/mp4" });
@@ -62,21 +63,19 @@ export default function UploadPage() {
       .getPublicUrl(data.path);
 
     // Insert into challenges table
-    const { error: dbError } = await supabase.from("challenges").insert([
-      {
+    const { error: dbError } = await supabase.from("challenges").insert([ 
+      { 
         title,
-        uploader: uploaderName, // display username or email as fallback
-        uploader_id: userId, // 🔥 associate with the logged-in user
+        uploader: uploaderName, 
+        uploader_id: userId, 
         video_url: publicData.publicUrl,
       },
     ]);
 
     if (dbError) alert("Error saving challenge: " + dbError.message);
     else {
-      alert("✅ Challenge uploaded successfully!");
-      setSuccessUrl(publicData.publicUrl);
-      setFile(null);
-      setTitle("");
+      alert("✅ Dance challenge uploaded successfully!");
+      navigate("/");
     }
 
     setUploading(false);
@@ -84,13 +83,13 @@ export default function UploadPage() {
 
   return (
     <div className="upload-container">
-      <h1>Upload Challenge</h1>
-      <p className="upload-subtitle">Share your creativity with the world</p>
+      <h1>Upload Dance Challenge</h1>
+      <p className="upload-subtitle">Share your moves with the world</p>
 
       <div className="upload-form">
         <input
           type="text"
-          placeholder="Challenge Title"
+          placeholder="Dance Challenge Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -103,22 +102,34 @@ export default function UploadPage() {
             onChange={handleFileChange}
           />
           <label htmlFor="video-upload" className="file-label">
-            <strong>Choose a video</strong> or drag it here
+            <FaVideo size={80} color="#999" />
+            <div className="file-label-text">
+              <strong>Drop your video here or click to browse</strong>
+            </div>
+            {file && <div className="file-name">{file.name}</div>}
           </label>
-          {file && <div className="file-name">✓ {file.name}</div>}
+          <button 
+            type="button"
+            disabled={uploading} 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!file || !title) {
+                // If no file, trigger file picker
+                if (!file) {
+                  document.getElementById('video-upload').click();
+                } else {
+                  alert("Please enter a title for your video");
+                }
+              } else {
+                handleUpload();
+              }
+            }}
+            className="upload-button-inside"
+          >
+            {uploading ? "Uploading..." : "Upload Video"}
+          </button>
         </div>
-
-        <button disabled={uploading} onClick={handleUpload}>
-          {uploading ? "Uploading..." : "Upload Challenge"}
-        </button>
       </div>
-
-      {successUrl && (
-        <div className="success-video">
-          <p>✨ Upload Successful!</p>
-          <video src={successUrl} controls />
-        </div>
-      )}
     </div>
   );
 }

@@ -1,0 +1,139 @@
+.upload-container {
+  text-align: center;
+  padding: 40px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.upload-subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-form input[type="text"] {
+  width: 90%;
+  max-width: 700px;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.file-input-wrapper {
+  position: relative;
+  width: 90%;
+  max-width: 700px;
+  margin-bottom: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafafa;
+  padding: 40px 20px;
+  gap: 20px;
+}
+
+#video-upload {
+  display: none;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+  padding: 20px;
+}
+
+.file-label-text {
+  margin-top: 5px;
+}
+
+.file-label-text strong {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.file-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.file-name {
+  margin-top: 5px;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.upload-button-inside {
+  padding: 12px 40px;
+  background-color: #4361ee;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.upload-button-inside:hover:not(:disabled) {
+  background-color: #3651d4;
+}
+
+.upload-button-inside:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button {
+  padding: 15px 30px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+}
+
+.success-video {
+  margin-top: 20px;
+}
+
+.success-video video {
+  width: 80%;
+  max-width: 600px;
+  border-radius: 8px;
+}
+
+.success-video p {
+  font-size: 1.5rem;
+  color: #4CAF50;
+  margin-bottom: 10px;
+}
