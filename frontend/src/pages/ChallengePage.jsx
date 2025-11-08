@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient.js";
 import { v4 as uuidv4 } from "uuid";
 import Leaderboard from "../components/Leaderboard.jsx";
@@ -7,8 +7,8 @@ import "./ChallengePage.css";
 
 export default function ChallengePage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
-  const [username, setUsername] = useState("");
   const [uploading, setUploading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState(null);
@@ -48,14 +48,19 @@ export default function ChallengePage() {
   };
 
   const startRecordingProcess = async () => {
-    if (!username) return alert("Please enter your name first!");
+    // check if logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/login");
+      return;
+    }
+
     // reset any previous recording
     setRecordedBlob(null);
 
-    // Robust async countdown to avoid race conditions with setInterval
+    // countdown
     for (let i = 3; i > 0; i--) {
       setCountdown(i);
-      // wait 1 second between ticks
       // eslint-disable-next-line no-await-in-loop
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
@@ -69,7 +74,6 @@ export default function ChallengePage() {
       const stream = videoRef.current?.srcObject;
       if (!stream) throw new Error("Camera stream not ready");
 
-      // If an existing recorder is active, stop it first
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         try { mediaRecorderRef.current.stop(); } catch {}
       }
@@ -89,15 +93,12 @@ export default function ChallengePage() {
       recorder.start();
       setRecording(true);
 
-      // Restart and play challenge video (best effort)
       if (challengeVideoRef.current) {
         try {
           challengeVideoRef.current.currentTime = 0;
           await challengeVideoRef.current.play();
-          // Stop recording when challenge video ends
           challengeVideoRef.current.onended = () => stopRecording();
         } catch (e) {
-          // playing might fail due to autoplay policy; user can manually start
           console.warn("Challenge video play failed:", e);
         }
       }
@@ -116,12 +117,28 @@ export default function ChallengePage() {
   };
 
   const handleUploadMimic = async () => {
-    if (!recordedBlob || !username)
-      return alert("Record a video and enter your name first!");
+    if (!recordedBlob)
+      return alert("Record a video first!");
 
     setUploading(true);
-    const fileName = `mimics/${uuidv4()}.webm`;
 
+    // check session
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+      setUploading(false);
+      navigate("/login");
+      return;
+    }
+
+    const userId = session.user.id;
+    const userEmail = session.user.email;
+
+    // upload to storage
+    const fileName = `mimics/${uuidv4()}.webm`;
     const { data, error: uploadError } = await supabase.storage
       .from("videos")
       .upload(fileName, recordedBlob, { contentType: "video/webm" });
@@ -136,10 +153,12 @@ export default function ChallengePage() {
       .from("videos")
       .getPublicUrl(data.path);
 
+    // save score row
     const { error: dbError } = await supabase.from("scores").insert([
       {
         challenge_id: id,
-        player: username,
+        player: userEmail,
+        player_id: userId,
         score: Math.random() * 100,
         mimic_url: publicData.publicUrl,
       },
@@ -173,13 +192,6 @@ export default function ChallengePage() {
 
         <div className="pane__right">
           <p className="pane__label">📹 Your Mimic</p>
-          <input
-            className="input"
-            type="text"
-            placeholder="Enter your name"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
 
           <div className="video-container">
             <video
