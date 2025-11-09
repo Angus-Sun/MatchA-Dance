@@ -306,7 +306,10 @@ export default function ProfilePage() {
                     <h3 className="profile-video-title">{u.title}</h3>
                     <div className="profile-video-actions">
                       <button onClick={() => navigate(`/challenge/${u.id}`)} className="profile-compete-btn">Compete</button>
-                      <button onClick={()=> handleDelete(u.id, "challenges")} className="profile-delete-btn">🗑️</button>
+                      <button onClick={()=> {
+                        if (window.confirm("Are you sure you want to delete this challenge?")) {
+                          handleDelete(u.id, "challenges");
+                        }}} className="profile-delete-btn">🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -341,7 +344,9 @@ export default function ProfilePage() {
                       <p className="profile-video-score">⭐ {m.score?.toFixed(1)}%</p>
                       <button onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(m.id, "scores");
+                        if (window.confirm("Are you sure you want to delete this mimic?")) {
+                          handleDelete(m.id, "scores");
+                        }
                         }} className="profile-delete-btn">🗑️</button>
                     </div>
                     
