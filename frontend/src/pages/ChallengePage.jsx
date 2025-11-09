@@ -136,7 +136,15 @@ export default function ChallengePage() {
     }
 
     const userId = session.user.id;
-    const userEmail = session.user.email;
+    
+    // Fetch user's profile to get username for display
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', userId)
+      .single();
+    
+    const playerName = profileData?.username || session.user.email;
 
     // upload to storage
     const fileName = `mimics/${uuidv4()}.webm`;
@@ -158,7 +166,7 @@ export default function ChallengePage() {
     const { error: dbError } = await supabase.from("scores").insert([
       {
         challenge_id: id,
-        player: userEmail,
+        player: playerName,
         player_id: userId,
         score: Math.random() * 100,
         mimic_url: publicData.publicUrl,
