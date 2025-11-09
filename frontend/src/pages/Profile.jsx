@@ -14,6 +14,22 @@ export default function ProfilePage() {
   const [mimics, setMimics] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
 
+  async function handleDelete(id, table) {
+  const { error } = await supabase
+    .from(table)
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting video:", error);
+    alert("Failed to delete video");
+  } else {
+    if (table === "challenges") setUploads(prev => prev.filter(u => u.id !== id));
+    if (table === "scores") setMimics(prev => prev.filter(m => m.id !== id));
+    alert("Video deleted successfully!");
+  }
+}
+
   const uploadAvatar = async (file) => {
   if (!file || !user) return;
   setUploading(true);
@@ -173,7 +189,10 @@ export default function ProfilePage() {
                       />
                     </div>
                     <h3 className="profile-video-title">{u.title}</h3>
-                    <button onClick={() => navigate(`/challenge/${u.id}`)} className="profile-compete-btn">Compete</button>
+                    <div className="profile-video-actions">
+                      <button onClick={() => navigate(`/challenge/${u.id}`)} className="profile-compete-btn">Compete</button>
+                      <button onClick={()=> handleDelete(u.id, "challenges")} className="profile-delete-btn">🗑️</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -203,7 +222,14 @@ export default function ProfilePage() {
                       />
                     </div>
                     <h3 className="profile-video-title">{m.challenges?.title}</h3>
-                    <p className="profile-video-score">⭐ {m.score?.toFixed(1)}%</p>
+                    <div className="profile-video-actions">
+                      <p className="profile-video-score">⭐ {m.score?.toFixed(1)}%</p>
+                      <button onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(m.id, "scores");
+                        }} className="profile-delete-btn">🗑️</button>
+                    </div>
+                    
                   </div>
                 ))}
               </div>
