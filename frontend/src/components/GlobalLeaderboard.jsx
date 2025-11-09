@@ -52,9 +52,10 @@ export default function GlobalLeaderboard() {
         .order('rank_position', { ascending: true })
         .limit(50);
 
+      // Apply time filters if needed
       if (filter !== 'all') {
         const timeFilter = getTimeFilter(filter);
-        if (timeFilter) query = query.gte('last_updated', timeFilter);
+        query = query.gte('last_updated', timeFilter);
       }
 
       const { data, error } = await query;
@@ -133,6 +134,7 @@ export default function GlobalLeaderboard() {
 
   const refreshLeaderboard = async () => {
     try {
+      // Call the function to update global leaderboard
       await supabase.rpc('update_global_leaderboard');
       await fetchLeaderboard();
     } catch (err) {
@@ -185,6 +187,7 @@ export default function GlobalLeaderboard() {
         </div>
       </div>
 
+      {/* User's Current Rank Card */}
       {currentUser && userRank && (
         <div className="user-rank-card">
           <div className="rank-info">
@@ -200,6 +203,7 @@ export default function GlobalLeaderboard() {
         </div>
       )}
 
+      {/* Leaderboard List */}
       <div className="leaderboard-list">
         {leaderboardData.length === 0 ? (
           <div className="empty-state">
@@ -266,6 +270,9 @@ export default function GlobalLeaderboard() {
       {leaderboardData.length > 0 && (
         <div className="leaderboard-footer">
           <p>Showing top {leaderboardData.length} players</p>
+          <button className="view-more-btn" onClick={() => navigate('/rankings')}>
+            View Full Rankings
+          </button>
         </div>
       )}
     </div>
