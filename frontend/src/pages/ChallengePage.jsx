@@ -46,7 +46,8 @@ export default function ChallengePage() {
     referenceSequence: challenge?.reference_sequence || [],
     threshold: 0.75,
     hold: 4,
-    autoSkip: 0, // Disable auto-skip, manual progression
+    // Use the challenge's suggested auto-skip (set at upload time) or default to 0.1s per step
+    autoSkip: (challenge && challenge.suggested_auto_skip) ? challenge.suggested_auto_skip : 0.1,
     disableAdvancement: false,
     onResult: (r) => {
       // First successful pose frame => mark ready
