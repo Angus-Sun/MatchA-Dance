@@ -448,11 +448,18 @@ export default function ChallengePage() {
 
     setUploading(true);
 
+    console.log('=== Upload Mimic Debug ===');
+    console.log('Environment:', window.location.hostname);
+    console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+
     // check session
     const {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession();
+    
+    console.log('Session exists:', !!session);
+    console.log('Session error:', sessionError);
 
     if (sessionError || !session) {
       setUploading(false);
@@ -473,19 +480,25 @@ export default function ChallengePage() {
 
     // upload to storage
     const fileName = `mimics/${uuidv4()}.webm`;
+    console.log('Uploading to Supabase storage:', fileName);
+    
     const { data, error: uploadError } = await supabase.storage
       .from("videos")
       .upload(fileName, recordedBlob, { contentType: "video/webm" });
 
     if (uploadError) {
-      alert("Upload failed: " + uploadError.message);
+      console.error('Supabase storage upload error:', uploadError);
+      alert("Storage upload failed: " + uploadError.message);
       setUploading(false);
       return;
     }
 
+    console.log('Supabase upload successful:', data);
     const { data: publicData } = supabase.storage
       .from("videos")
       .getPublicUrl(data.path);
+    
+    console.log('Public URL:', publicData.publicUrl);
 
     // Build scoreData payload for server
     const currentScores = scoresRef.current || [];
@@ -546,6 +559,10 @@ export default function ChallengePage() {
         alert(`Submit failed: ${json.error || resp.statusText}`);
         setUploading(false);
       } else {
+        console.log('✅ Score submitted successfully!');
+        setUploading(false);
+        // Navigate to the same challenge page to refresh the leaderboard
+        navigate(`/challenge/${id}`, { replace: true });
         window.location.reload();
       }
     } catch (err) {
