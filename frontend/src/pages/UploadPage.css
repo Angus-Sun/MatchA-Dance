@@ -27,7 +27,9 @@
 }
 
 .upload-subtitle {
-  font-size: 1.05rem;
+  font-size: 1.5rem;
+  line-height: 1.6;
+  font-weight: 500;
   color: #b7c3b7;
   margin-bottom: 40px;
   animation: slideDown 0.8s ease;
@@ -127,7 +129,8 @@
 }
 
 .file-label-text strong {
-  font-size: 1.15rem;
+  font-size: 1.35rem;
+  line-height: 1.4;
   color: #d1e8d1;
   font-weight: 700;
   display: block;

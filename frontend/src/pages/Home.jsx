@@ -74,14 +74,8 @@ export default function Home() {
       </main>
       <footer className="site-footer">
         <div className="footer-inner">
-          <div className="brand">TokTik</div>
-          <nav className="footer-links">
-            <a href="#about">About</a>
-            <a href="#terms">Terms</a>
-            <a href="#privacy">Privacy</a>
-            <a href="#contact">Contact</a>
-          </nav>
-          <div className="copy">© {new Date().getFullYear()} TokTik. All rights reserved.</div>
+          <div className="brand">Matcha Dance</div>
+          <div className="copy">© {new Date().getFullYear()} Matcha Dance. All rights reserved.</div>
         </div>
       </footer>
     </div>
