@@ -8,6 +8,7 @@ import ChallengePage from "./pages/ChallengePage";
 import Auth from "./pages/Auth"; // your login/signup page
 import ProtectedRoute from "./components/ProtectedRoute"; // now implemented
 import ProfilePage from "./pages/Profile";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import { UserProvider, useUser } from './hooks/useUser.jsx';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
               }
             />
             <Route path="/challenge/:id" element={<ChallengePage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/login" element={<Auth />} />
             <Route
               path="/profile"
